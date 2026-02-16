@@ -1,0 +1,4 @@
+# oTree-may-not-overwrite-this-file
+otree>=5.0.0a21
+psycopg2>=2.8.4
+numpy==1.20.1

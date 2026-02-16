@@ -1,0 +1,59 @@
+{% extends "global/Page.html" %}
+
+{% block title %}Please Make a Choice{% endblock %}
+
+{% block content %}
+<table style="width:95%; border-collapse: collapse; margin:1em 0;">
+  <colgroup>
+    <col style="width:40%">
+    <col style="width:5%">
+    <col style="width:40%">
+  </colgroup>
+  <thead>
+    <tr>
+      <th style="border:1px solid #000; padding:4px; text-align:center;">Option I</th>
+      <th style="border:1px solid #000; padding:4px; text-align:center;"></th>
+      <th style="border:1px solid #000; padding:4px; text-align:center;">Option II</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="nowrap-cell" style="border:1px solid #000; padding:4px; text-align:center;">
+        Today: {{ payment_today }}, One Month: Lottery {{ probA }}% of {{ monthA }}<br>
+        {{ probB }}% of {{ monthB }}
+      </td>
+      <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
+      <td class="nowrap-cell" style="border:1px solid #000; padding:4px; text-align:center;">
+        Today: {{ payment_today }}, One Month: 100% of your certain amount
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+  <!-- 说明文本 -->
+  <p id="text">
+    Please enter the certain amount (the dollar value you would switch) that would make you indifferent between Option I and the lottery in Option II. 
+  </p>
+  <form method="post" action=".">
+    
+    <div class="form-group">
+      <label for="certainty_equivalent">
+        Enter your amount (between {{ low }} and {{ high }}):
+      </label>
+      <input
+        type="number"
+        id="certainty_equivalent"
+        name="certainty_equivalent"
+        min="{{ low }}"
+        max="{{ high }}"
+        step="0.01"
+        required
+        class="form-control"
+      >
+      {{ formfield_errors "certainty_equivalent" }}
+    </div>
+    <br>
+    <button type="submit" class="otree-btn-next btn btn-primary">Next</button>
+  </form>
+{% endblock %}
+

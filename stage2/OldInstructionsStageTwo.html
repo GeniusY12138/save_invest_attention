@@ -1,0 +1,52 @@
+{% extends "global/Page.html" %}
+{% block title %} Instructions: Stage 2{% endblock %}
+{% block content %}
+  <h4>Report Your Certainty Equivalent for Every Lottery</h4>
+
+  <p>
+    In this stage, you will enter the amount at which you are indifferent between
+    a sure payment and the lottery. We call this your <strong>Certainty Equivalent (CE)</strong>.
+  </p>
+
+  <p>
+    After you submit your CE, we will draw a random number.<br>
+    • If the drawn amount is higher than your CE, you will receive the drawn amount.<br>
+    • If the drawn amount is lower than your CE, you will receive the outcome of the lottery.<br>
+    Your final payoff will be whichever of these two applies.
+  </p>
+
+  <p>
+    <strong>Please enter your true CE.</strong><br>
+    <strong>Reporting your true CE maximizes your expected payoff.</strong>
+  </p>
+
+  <button type="button"
+          onclick="document.getElementById('whyBox').style.display='block'">
+    Why?
+  </button>
+
+  <div id="whyBox"
+       style="display:none; margin:1em 0; padding:1em; border:1px solid #ccc; border-radius:4px;">
+    <h4>Why Truth-Telling Is Best</h4>
+    <p>
+      The drawn amount is chosen independently of your CE. If you report a CE
+      above your true indifference point, you risk receiving a sure payment
+      that is worth less to you than the lottery’s expected value. If you
+      report it below your true indifference point, you may end up with the
+      lottery when you would have preferred the sure amount. Only by reporting
+      your true CE can you never regret the offer you receive.
+    </p>
+    <button type="button"
+            onclick="document.getElementById('whyBox').style.display='none'">
+      Close
+    </button>
+  </div>
+    
+  <p>
+   
+  </p>
+
+    {% next_button %}
+
+{% endblock %}
+

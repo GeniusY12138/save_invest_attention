@@ -1,0 +1,43 @@
+{% extends "global/Page.html" %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block content %}
+    <h4>Round {{ payinground_s2 }} was selected. </h4>
+    <p>
+      If the allocation method is the lottery, based on your choices:<br/>
+      You will receive {{ exec_monthA }} with probability {{ exec_probA }}%;<br/>
+      You will receive {{ exec_monthB }} with probability {{ exec_probB }}%.<br/>
+    </p>
+
+  <hr/>
+
+  <h4>In Stage 2, </h4>
+  <p>
+    Drawn BDM price: ${{ random_price }}<br/>
+    Your stated certainty equivalent (CE): ${{ ce }}<br/>
+    Allocation method: {{ method }}<br/><br/>
+    Payoff today: {{ payoff_today_s2 }}<br/>
+    Payoff in one month: {{ payoff_one_month_s2 }}
+  </p>
+
+  <hr/>
+
+  <h4>Final Payments</h4>
+  <table class="table table-bordered" style="max-width:480px;">
+    <tr>
+      <td><strong>Cash participation fee</strong></td>
+      <td>$5.00</td>
+    </tr>
+    <tr>
+      <td><strong>Total paid today (including the fixed amount)</strong></td>
+      <td>{{ total_today }}</td>
+    </tr>
+    <tr>
+      <td><strong>Total paid in one month (including the fixed amount)</strong></td>
+      <td>{{ total_1m }}</td>
+    </tr>
+  </table>
+{% endblock %}

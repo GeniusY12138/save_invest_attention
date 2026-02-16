@@ -1,0 +1,27 @@
+{% extends "global/Page.html" %}
+{% block title %}Instructions{% endblock %}
+{% block content %}
+
+<p>
+The task is intentionally repetitive. You will see a mostly static screen. At unpredictable times, a small pop-up will appear with an easy prompt (for example, “Press F” or “Press J,” or a very simple question). The prompts are designed so that performance depends primarily on paying attention, not on skill.
+</p>
+
+<p>
+There is <b>no punishment</b> for missing a prompt or switching away from the tab. We simply record performance.
+Your outcome is based on your <b>accuracy rate</b>: the proportion of prompts you answer correctly.
+</p>
+
+<p>
+Based on your Stage 2 results, your “time chips” are:
+<b>x = {{ today_dollars }}</b> dollars for today and <b>y = {{ later_dollars }}</b> dollars for one month later.
+This means you will be required to complete <b>{{ today_minutes }}</b> minutes today (40 − x) and
+<b>{{ later_minutes }}</b> minutes in the later part (40 − y).
+</p>
+
+<p>
+Next, you will see a {{ demo_seconds }}-second sample of the task so you know what it looks like.
+After the sample, you will start the <b>today</b> task. Immediately after that, you will complete the <b>later</b> task (representing one month later).
+</p>
+
+{{ next_button }}
+{% endblock %}

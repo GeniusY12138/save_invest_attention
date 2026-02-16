@@ -1,0 +1,25 @@
+{% extends "global/Page.html" %}
+
+{% block title %}
+    Results
+{% endblock %}
+
+{% block content %}
+    <h4>Section {{ pay_stage }} Round {{ pay_round }} was selected. </h4>
+
+  <h4>Final Payments</h4>
+  <table class="table table-bordered" style="max-width:600px;">
+    <tr>
+      <td><strong>Cash participation fee</strong></td>
+      <td>$5.00</td>
+    </tr>
+    <tr>
+      <td><strong>Total paid today (including the fixed amount $5.00)</strong></td>
+      <td>{{ final_today }}</td>
+    </tr>
+    <tr>
+      <td><strong>Total paid in one month (including the fixed amount $5.00)</strong></td>
+      <td>{{ final_1m }}</td>
+    </tr>
+  </table>
+{% endblock %}

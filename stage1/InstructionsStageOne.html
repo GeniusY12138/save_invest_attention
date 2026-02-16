@@ -1,0 +1,47 @@
+{% extends "global/Page.html" %}
+{% load otree static %}
+
+{% block title %}
+  Instructions: Section 1
+{% endblock %}
+
+{% block content %}
+<div>
+    
+  <p>
+      In this part, in each scenario, you will be given a certain amount of money (your "endowment"). In most questions, you will have two decisions to make regarding what to do with this money.
+  </p>
+    
+  <p>
+      First, you must decide how much of it to receive today and how much to save for the future. Any amount that you choose to receive today will be added to the $5 transfer that will be sent to you today. What happens to the amount you save for the future is described below.
+  </p>
+    
+  <p>
+      Second, if you decide to save money for the future, you must decide how to divide this money between two available assets, called asset A and asset B. These assets may pay out an amount of money in one month's time. At this point, any money owing to you will be added to the $5 portion of the show-up fee to be transferred to you in 1 month's time.
+  </p>
+    
+  <p>
+      One and only one of asset A and asset B will pay out money. At the end of the experiment, the computer will randomly select one of the two assets to pay out. The probability of each asset paying money will vary from scenario to scenario. You will be informed of the exact probabilities in each scenario before you make your decision.
+  </p>
+    
+  <p>
+      The amount of money that each asset pays out if it is selected for payment is determined by its rate of return. This is a number between 1 and 5 that tells you how much you get back for every dollar you invest in that asset (assuming that that asset is chosen for payment). For example, if the rate of return for Asset A is 1.2, you will receive $1.20 for every dollar you invest in Asset A, assuming that A is chosen for payment. If asset B is the one that pays out, then you would receive nothing from this investment.
+  </p>
+    
+  <p>
+      Again, the rate of return for each asset will vary from scenario to scenario. You will be told the rate of return before you make a decision.
+  </p>
+    
+  <p>
+      In some questions, the probability of one of the assets paying off will be 100%, and so the other asset will pay off 0% of the time. In such cases, you will only have to decide how much you would like to save. Any money you save will automatically be invested in the asset that pays 100%.
+  </p>
+    
+  <p>
+      You will first be asked some questions that test your understanding of the experiment. You will not be able to proceed until you have correctly answered these questions.
+  </p>
+    
+</div>
+
+    {% next_button %}
+
+{% endblock %}

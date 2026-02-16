@@ -1,0 +1,77 @@
+{% extends "global/Page.html" %}
+
+{% block title %}Instruction: Section 2{% endblock %}
+
+{% block content %}
+  <p>
+      In this part, you will be presented with up to 32 different choice screens. On each of these screens, you will be presented with a list of choices for you to make. The first option will be the same in each question: it will be an amount of money that you will receive today, plus the chance of receiving some money in one month's time. The second option will change in each question.
+  </p>
+
+  <p>
+      Here is an example. In this section, I am going to ask you the following list of questions:
+  </p>
+
+  <p>
+      Lottery A is 40% chance of $20.00, and 60% chance of 0. Every option on the left hand side is the same: Today: $1.00, One Month: Lottery A. <b>The option on the right gets better as you move down the screen</b>.</p>
+
+  <table style="width:95%; border-collapse: collapse; margin:1em 0;">
+    <thead>
+      <tr>
+        <th style="border:1px solid #000; padding:4px; width:5%; text-align:center;">Q#</th>
+        <th style="border:1px solid #000; padding:4px; width:25%; text-align:center;"> </th>
+        <th style="border:1px solid #000; padding:4px; width:30%; text-align:center;">Option I</th>
+        <th style="border:1px solid #000; padding:4px; width:5%; text-align:center;"> </th>
+        <th style="border:1px solid #000; padding:4px; width:30%; text-align:center;">Option II</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $0.01</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">2</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $0.02</td>
+      </tr>
+      <tr>
+        <td colspan="5" style="border:none; text-align:center;">…</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">1,999</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $19.99</td>
+      </tr>
+      <tr>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">2,000</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $20.00</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    In each question, you pick either Option I or Option II (the money).  
+    After you answer all 2,000 questions, and if this screen is selected for payment, I will randomly pick <em>one</em> question and pay you the option you chose on that one question.  
+    Each question is equally likely to be chosen for payment.  
+    Obviously, <b>you have no incentive to lie</b>, because if that question gets chosen, then you'd end up with the option you like less.
+  </p>
+  <p>
+    I assume you’ll choose Option I in at least the first few questions, then switch to Option II.  
+    To save time, I will ask you at what dollar value you would switch, i.e., the first line you would choose Option II.
+    I will then fill out your answers for all 2,000 questions based on that switch point.
+  </p>
+  <p>On each choice screen, I will directly ask you at which dollar value you would switch.</p>
+      
+    {% next_button %}
+
+{% endblock %}

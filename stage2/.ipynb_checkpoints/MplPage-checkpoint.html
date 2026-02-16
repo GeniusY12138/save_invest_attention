@@ -1,0 +1,26 @@
+{{ block title }}
+    Please Make a Choice
+{{ endblock }}
+
+{{ block content }}
+
+    <p id="text">
+        Lottery A is {{ probA_display }}% chance of {{ monthA_display }}, and {{ probB_display }}% chance of {{ monthB_display }}.
+        <br><br>
+        Every choice on the left-hand side was previously the same: {{ savings_display }} and Lottery A.
+        Now, please enter the amount you would take for certain that makes you indifferent to the lottery.  
+    </p>
+
+    
+    <label for="inflection_input">Enter your amount:</label>
+    <input type="number" id="inflection_input" name="inflection_input" 
+           min="{{ lottery_min }}" max="{{ lottery_max }}" step="0.01" required title="Please enter an amount between min("{{ monthA_display }}", "{{monthB_display}}") and max("{{ monthA_display }}", "{{monthB_display}}") ">
+
+    {{ formfield_errors "inflection_input" }}
+
+    <br><br>
+
+    <button type="button" onClick="submit_page()" class="otree-btn-next btn btn-primary">Next</button>
+
+
+{{ endblock }}

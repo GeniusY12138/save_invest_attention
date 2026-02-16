@@ -1,0 +1,153 @@
+
+{% extends "global/Page.html" %}
+{% block title %}30-second sample{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-body">
+    <p>This is a short {{ demo_seconds }}-second sample of the attention task. It will start automatically. Please keep this tab in focus.</p>
+    <p><strong>Note:</strong> This sample is just to show you what the pop-ups look like. Your answers here do not affect payment.</p>
+  </div>
+</div>
+
+<div class="mt-3" id="taskArea" style="border:1px solid #ddd; padding:16px; border-radius:8px;">
+  <div id="statusLine">Sample running…</div>
+  <div id="timerLine" style="margin-top:8px;"></div>
+  <div id="promptBox" style="display:none; margin-top:16px; padding:12px; border:1px solid #ccc; border-radius:8px;">
+    <div id="promptText" style="font-size:18px; margin-bottom:10px;"></div>
+    <input id="promptInput" type="text" autocomplete="off" style="display:none; width:160px;" />
+    <div id="promptHint" style="margin-top:8px; color:#666;"></div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <em>The page will advance automatically when the sample ends.</em>
+</div>
+
+<script>
+(function() {
+  // Simple seeded RNG (LCG) for repeatability
+  let seed = Number("{{ seed }}");
+  function rand() {
+    seed = (seed * 48271) % 2147483647;
+    return seed / 2147483647;
+  }
+  function randInt(lo, hi) { // inclusive
+    return Math.floor(rand() * (hi - lo + 1)) + lo;
+  }
+
+  const demoSeconds = Number("{{ demo_seconds }}");
+  const intervalMin = Number("{{ interval_min }}");
+  const intervalMax = Number("{{ interval_max }}");
+  const deadlineMs = Number("{{ deadline_ms }}");
+
+  const statusLine = document.getElementById('statusLine');
+  const timerLine = document.getElementById('timerLine');
+  const promptBox = document.getElementById('promptBox');
+  const promptText = document.getElementById('promptText');
+  const promptInput = document.getElementById('promptInput');
+  const promptHint = document.getElementById('promptHint');
+
+  let endAt = Date.now() + demoSeconds * 1000;
+  let activePrompt = null;
+  let promptDeadline = null;
+
+  function makePrompt() {
+    // 4 easy prompt families; parameters change each time
+    const t = randInt(1, 4);
+    if (t === 1) {
+      const key = (rand() < 0.5) ? 'F' : 'J';
+      return {type:'key', key:key, text:`Press ${key}`, hint:'Use your keyboard.'};
+    }
+    if (t === 2) {
+      const a = randInt(1, 9), b = randInt(1, 9);
+      const ans = String(a + b);
+      return {type:'text', ans:ans, text:`Type ${a} + ${b}`, hint:'Type the number and press Enter.'};
+    }
+    if (t === 3) {
+      const n = randInt(10, 99);
+      return {type:'text', ans:String(n), text:`Type the number: ${n}`, hint:'Type the same two-digit number and press Enter.'};
+    }
+    // left/right
+    const dir = (rand() < 0.5) ? 'Left' : 'Right';
+    return {type:'key_lr', key:dir, text:`Select ${dir}`, hint:'Press the arrow key (← or →).'};
+  }
+
+  function showPrompt(p) {
+    activePrompt = p;
+    promptDeadline = Date.now() + deadlineMs;
+    promptBox.style.display = 'block';
+    promptText.textContent = p.text;
+    promptHint.textContent = p.hint;
+
+    if (p.type === 'text') {
+      promptInput.style.display = 'inline-block';
+      promptInput.value = '';
+      promptInput.focus();
+    } else {
+      promptInput.style.display = 'none';
+    }
+  }
+
+  function clearPrompt() {
+    activePrompt = null;
+    promptDeadline = null;
+    promptBox.style.display = 'none';
+    promptInput.blur();
+  }
+
+  function scheduleNext() {
+    const delay = randInt(intervalMin, intervalMax);
+    setTimeout(() => {
+      if (Date.now() >= endAt) return;
+      if (!activePrompt) showPrompt(makePrompt());
+      scheduleNext();
+    }, delay);
+  }
+
+  function tick() {
+    const remainingMs = Math.max(0, endAt - Date.now());
+    timerLine.textContent = `Sample time remaining: ${Math.ceil(remainingMs/1000)} seconds`;
+    if (activePrompt && Date.now() > promptDeadline) {
+      // Missed in sample; just clear
+      clearPrompt();
+    }
+    if (remainingMs <= 0) {
+      statusLine.textContent = 'Sample finished.';
+      clearPrompt();
+      // auto-advance after short pause
+      setTimeout(() => { document.querySelector('form').submit(); }, 300);
+      return;
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Key handling
+  document.addEventListener('keydown', (e) => {
+    if (!activePrompt) return;
+
+    if (activePrompt.type === 'key') {
+      const k = e.key.toUpperCase();
+      if (k === activePrompt.key) clearPrompt();
+      return;
+    }
+
+    if (activePrompt.type === 'key_lr') {
+      if (activePrompt.key === 'Left' && e.key === 'ArrowLeft') clearPrompt();
+      if (activePrompt.key === 'Right' && e.key === 'ArrowRight') clearPrompt();
+      return;
+    }
+
+    if (activePrompt.type === 'text') {
+      if (e.key === 'Enter') {
+        const v = promptInput.value.trim();
+        if (v === activePrompt.ans) clearPrompt();
+      }
+    }
+  });
+
+  scheduleNext();
+  tick();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,282 @@
+
+{% extends "global/Page.html" %}
+{% block title %}Attention task{% endblock %}
+
+{% block content %}
+
+<!-- Hidden form fields populated by JavaScript -->
+<div style="display:none;">
+  <input type="hidden" name="task_log_json" id="task_log_json">
+  <input type="hidden" name="assigned_task_seconds" id="assigned_task_seconds">
+  <input type="hidden" name="completed_task_seconds" id="completed_task_seconds">
+  <input type="hidden" name="makeup_seconds" id="makeup_seconds">
+  <input type="hidden" name="missed_questions" id="missed_questions">
+  <input type="hidden" name="blur_events" id="blur_events">
+  <input type="hidden" name="incorrect_answers" id="incorrect_answers">
+  <input type="hidden" name="answered_questions" id="answered_questions">
+</div>
+
+<div class="card">
+  <div class="card-body">
+    {% if phase == 'today' %}
+      <p>You chose to complete <strong>{{ assigned_seconds }}</strong> seconds today.</p>
+      <p>The task ends when you have accumulated the required attentive time. Please keep this tab in focus.</p>
+    {% else %}
+      <p>This is your follow-up session. Please complete the remaining minutes using the same task.</p>
+    {% endif %}
+    <p>We will record your accuracy on the pop-up checks (proportion correct among the questions you answered) and the number of times you switch away from this tab/window.</p>
+  </div>
+</div>
+
+<input type="hidden" name="task_log_json" id="task_log_json" />
+<input type="hidden" name="completed_task_seconds" id="completed_task_seconds" value="0" />
+<input type="hidden" name="makeup_seconds" id="makeup_seconds" value="0" />
+<input type="hidden" name="missed_questions" id="missed_questions" value="0" />
+<input type="hidden" name="blur_events" id="blur_events" value="0" />
+<input type="hidden" name="incorrect_answers" id="incorrect_answers" value="0" />
+<input type="hidden" name="answered_questions" id="answered_questions" value="0" />
+
+<div class="mt-3" id="taskArea" style="border:1px solid #ddd; padding:16px; border-radius:8px;">
+  <div id="statusLine">Task running…</div>
+  <div id="timerLine" style="margin-top:8px; font-size:18px;"></div>
+  <div id="penaltyLine" style="margin-top:8px; color:#555;"></div>
+
+  <div id="promptBox" style="display:none; margin-top:16px; padding:12px; border:1px solid #ccc; border-radius:8px;">
+    <div id="promptText" style="font-size:20px; margin-bottom:10px;"></div>
+    <input id="promptInput" type="text" autocomplete="off" style="display:none; width:180px;" />
+    <div id="promptHint" style="margin-top:8px; color:#666;"></div>
+  </div>
+</div>
+
+<div class="mt-3">
+  <p><em>Please do not refresh this page.</em></p>
+</div>
+
+<script>
+(function() {
+  // Seeded RNG (LCG): repeatable for audit, unpredictable to participant
+  let seed = Number("{{ seed }}");
+  function rand() {
+    seed = (seed * 48271) % 2147483647;
+    return seed / 2147483647;
+  }
+  function randInt(lo, hi) { // inclusive
+    return Math.floor(rand() * (hi - lo + 1)) + lo;
+  }
+
+  const assignedSeconds = Number("{{ assigned_seconds }}");
+  const intervalMin = Number("{{ interval_min_ms }}");
+  const intervalMax = Number("{{ interval_max_ms }}");
+  const deadlineMs = Number("{{ question_deadline_ms }}");
+  // No time penalties in this version; we only record attention and accuracy.
+
+  const statusLine = document.getElementById('statusLine');
+  const timerLine = document.getElementById('timerLine');
+  const penaltyLine = document.getElementById('penaltyLine');
+
+  const promptBox = document.getElementById('promptBox');
+  const promptText = document.getElementById('promptText');
+  const promptInput = document.getElementById('promptInput');
+  const promptHint = document.getElementById('promptHint');
+
+  let remainingMs = assignedSeconds * 1000;
+  let running = true;
+
+  let activePrompt = null;
+  let promptDeadline = null;
+  let promptShownAt = null;
+
+  let makeupSeconds = 0;
+  let missed = 0;
+  let blurs = 0;
+  let incorrect = 0;
+  let answered = 0;
+
+  const log = [];
+  function logEvent(ev) {
+    ev.t = Date.now();
+    log.push(ev);
+  }
+
+  function flashNote(text) {
+    penaltyLine.textContent = text;
+    setTimeout(() => { penaltyLine.textContent = ''; }, 1200);
+  }
+
+  function makePrompt() {
+    // Prompt families. Each draw changes parameters (repeatable via RNG).
+    const t = randInt(1, 5);
+    if (t === 1) {
+      const key = (rand() < 0.5) ? 'F' : 'J';
+      return {type:'key', key:key, text:`Press ${key}`, hint:'Use your keyboard.'};
+    }
+    if (t === 2) {
+      const a = randInt(1, 9), b = randInt(1, 9);
+      const ans = String(a + b);
+      return {type:'text', ans:ans, text:`Type ${a} + ${b}`, hint:'Type the number and press Enter.'};
+    }
+    if (t === 3) {
+      const n = randInt(10, 99);
+      return {type:'text', ans:String(n), text:`Type the number: ${n}`, hint:'Type the same two-digit number and press Enter.'};
+    }
+    if (t === 4) {
+      const dir = (rand() < 0.5) ? 'Left' : 'Right';
+      return {type:'key_lr', key:dir, text:`Select ${dir}`, hint:'Press the arrow key (← or →).'};
+    }
+    // simple comparison
+    const x = randInt(1, 9), y = randInt(1, 9);
+    const ans = (x > y) ? '>' : (x < y) ? '<' : '=';
+    return {type:'text', ans:ans, text:`Type the symbol: ${x} ? ${y}`, hint:'Type one character: >, <, or =, then press Enter.'};
+  }
+
+  function showPrompt(p) {
+    activePrompt = p;
+    promptShownAt = Date.now();
+    promptDeadline = Date.now() + deadlineMs;
+    promptBox.style.display = 'block';
+    promptText.textContent = p.text;
+    promptHint.textContent = p.hint;
+
+    if (p.type === 'text') {
+      promptInput.style.display = 'inline-block';
+      promptInput.value = '';
+      promptInput.focus();
+    } else {
+      promptInput.style.display = 'none';
+    }
+    logEvent({event:'prompt_show', prompt:p});
+  }
+
+  function clearPrompt(outcome, response) {
+    if (!activePrompt) return;
+    const rt = Date.now() - (promptShownAt || Date.now());
+    logEvent({event:'prompt_end', prompt:activePrompt, outcome:outcome, response:response || null, rt_ms:rt});
+    activePrompt = null;
+    promptDeadline = null;
+    promptShownAt = null;
+    promptBox.style.display = 'none';
+    promptInput.blur();
+  }
+
+  function scheduleNext() {
+    const delay = randInt(intervalMin, intervalMax);
+    setTimeout(() => {
+      if (!running) return;
+      if (!activePrompt && document.visibilityState === 'visible') {
+        showPrompt(makePrompt());
+      }
+      scheduleNext();
+    }, delay);
+  }
+
+  function finish() {
+    running = false;
+    statusLine.textContent = 'Task finished. Submitting…';
+    // Populate hidden fields
+    document.getElementById('task_log_json').value = JSON.stringify(log);
+    document.getElementById('completed_task_seconds').value = String(Math.round(assignedSeconds));
+    document.getElementById('makeup_seconds').value = "0";
+    document.getElementById('missed_questions').value = String(missed);
+    document.getElementById('blur_events').value = String(blurs);
+    document.getElementById('incorrect_answers').value = String(incorrect);
+    document.getElementById('answered_questions').value = String(answered);
+
+    // submit
+    setTimeout(()=>{ document.querySelector('form').submit(); }, 300);
+  }
+
+  let lastTick = Date.now();
+  function tick() {
+    const now = Date.now();
+    const dt = now - lastTick;
+    lastTick = now;
+
+    if (running) {
+      // only count down when visible (attention time)
+      if (document.visibilityState === 'visible') {
+        remainingMs = Math.max(0, remainingMs - dt);
+      }
+
+      // handle prompt deadline
+      if (activePrompt && now > promptDeadline) {
+        missed += 1;
+        logEvent({event:'prompt_missed'});
+        clearPrompt('missed', null);
+      }
+
+      timerLine.textContent = `Required attentive time remaining: ${Math.ceil(remainingMs/1000)} seconds`;
+
+      if (remainingMs <= 0) {
+        finish();
+        return;
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  // Focus/visibility measurement (no penalties)
+  window.addEventListener('blur', () => {
+    if (!running) return;
+    blurs += 1;
+    logEvent({event:'blur'});
+    flashNote('Please keep this tab in focus.');
+  });
+
+  document.addEventListener('visibilitychange', () => {
+    if (!running) return;
+    logEvent({event:'visibility', state: document.visibilityState});
+    // We do not add a penalty here to avoid double-counting with blur on some browsers.
+  });
+
+  // Response handling
+  document.addEventListener('keydown', (e) => {
+    if (!running || !activePrompt) return;
+
+    if (activePrompt.type === 'key') {
+      const k = e.key.toUpperCase();
+      if (k === activePrompt.key) {
+        answered += 1;
+        clearPrompt('correct', {key:k});
+      } else if (k === 'F' || k === 'J') {
+        answered += 1;
+        incorrect += 1;
+        clearPrompt('incorrect', {key:k});
+      }
+      return;
+    }
+
+    if (activePrompt.type === 'key_lr') {
+      if (activePrompt.key === 'Left' && e.key === 'ArrowLeft') {
+        answered += 1;
+        clearPrompt('correct', {key:'ArrowLeft'});
+      } else if (activePrompt.key === 'Right' && e.key === 'ArrowRight') {
+        answered += 1;
+        clearPrompt('correct', {key:'ArrowRight'});
+      } else if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
+        answered += 1;
+        incorrect += 1;
+        clearPrompt('incorrect', {key:e.key});
+      }
+      return;
+    }
+
+    if (activePrompt.type === 'text') {
+      if (e.key === 'Enter') {
+        const v = promptInput.value.trim();
+        answered += 1;
+        if (v === activePrompt.ans) {
+          clearPrompt('correct', {text:v});
+        } else {
+          incorrect += 1;
+          clearPrompt('incorrect', {text:v});
+        }
+      }
+    }
+  });
+
+  // Start
+  scheduleNext();
+  tick();
+})();
+</script>
+{% endblock %}
