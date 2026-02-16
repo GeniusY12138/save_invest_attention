@@ -95,15 +95,15 @@ class C(BaseConstants):
     NUM_ROUNDS = 2
 
     # Baseline minutes per session (today AND one-month-later)
-    TOTAL_MINUTES = 40
+    TOTAL_MINUTES = 15
 
     # Demo preview length
     DEMO_SECONDS = 120
 
     # Micro-question design
-    QUESTION_DEADLINE_MS = 3000  # time to answer after pop-up appears
-    INTERVAL_MIN_MS = 15000      # minimum time between pop-ups
-    INTERVAL_MAX_MS = 45000      # maximum time between pop-ups
+    QUESTION_DEADLINE_MS = 5000  # time to answer after pop-up appears
+    INTERVAL_MIN_MS = 10000      # minimum time between pop-ups
+    INTERVAL_MAX_MS = 30000      # maximum time between pop-ups
 
     # No time penalties in this version (we record misses/blur for accuracy/attention measurement).
     MISS_PENALTY_SECONDS = 0
@@ -237,7 +237,6 @@ class Task(Page):
     form_model = 'player'
     form_fields = [
         'task_log_json',
-        'assigned_task_seconds',
         'completed_task_seconds',
         'makeup_seconds',
         'missed_questions',
@@ -286,6 +285,8 @@ class Task(Page):
             minutes = int(player.later_minutes)
 
         assigned_seconds = int(minutes * 60)
+        player.participant.vars['assigned_task_seconds'] = int(assigned_seconds)
+
         player.assigned_task_seconds = assigned_seconds
 
         seed = (player.participant.id_in_session * 104729 + 77777 + player.round_number) % 2147483647
@@ -330,20 +331,19 @@ class End(Page):
 
     @staticmethod
     def vars_for_template(player: Player):
-        # Display chosen earnings and implied minutes for both sessions.
         if player.phase == 'today':
             x = int(player.today_dollars or 0)
             y = int(player.later_dollars or 0)
             today_m = int(player.today_minutes or (C.TOTAL_MINUTES - x))
             later_m = int(player.later_minutes or (C.TOTAL_MINUTES - y))
         else:
-            # In later phase, allocation should already be loaded in Task.vars_for_template
             x = int(player.today_dollars or 0)
             y = int(player.later_dollars or 0)
             today_m = int(player.today_minutes or C.TOTAL_MINUTES)
             later_m = int(player.later_minutes or C.TOTAL_MINUTES)
 
         return dict(
+            accuracy_rate_str=f"{(player.accuracy_rate or 0.0):.3f}",
             phase=player.phase,
             baseline_minutes=C.TOTAL_MINUTES,
             today_dollars=x,
@@ -351,6 +351,5 @@ class End(Page):
             today_minutes=today_m,
             later_minutes=later_m,
         )
-
 
 page_sequence = [Instructions, Demo, Task, End]

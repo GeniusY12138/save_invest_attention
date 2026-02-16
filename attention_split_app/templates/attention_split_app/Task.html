@@ -65,7 +65,7 @@
   }
 
   const assignedSeconds = Number("{{ assigned_seconds }}");
-  const intervalMin = Number("{{ interval_min_ms }}");
+  const intervalMin = Number("{{ interval_min_ms}}");
   const intervalMax = Number("{{ interval_max_ms }}");
   const deadlineMs = Number("{{ question_deadline_ms }}");
   // No time penalties in this version; we only record attention and accuracy.
@@ -174,7 +174,8 @@
     statusLine.textContent = 'Task finished. Submitting…';
     // Populate hidden fields
     document.getElementById('task_log_json').value = JSON.stringify(log);
-    document.getElementById('completed_task_seconds').value = String(Math.round(assignedSeconds));
+    
+    document.getElementById('assigned_task_seconds').value = String(Math.round(assignedSeconds));document.getElementById('completed_task_seconds').value = String(Math.round(assignedSeconds));
     document.getElementById('makeup_seconds').value = "0";
     document.getElementById('missed_questions').value = String(missed);
     document.getElementById('blur_events').value = String(blurs);
