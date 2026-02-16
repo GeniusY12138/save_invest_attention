@@ -143,6 +143,7 @@ class Player(BasePlayer):
     blur_events = models.IntegerField(initial=0)
     incorrect_answers = models.IntegerField(initial=0)
     answered_questions = models.IntegerField(initial=0)
+    total_questions = models.IntegerField(initial=0)
 
     # Accuracy metrics (computed server-side after the task page submits)
     correct_answers = models.IntegerField(initial=0)
@@ -243,6 +244,7 @@ class Task(Page):
         'blur_events',
         'incorrect_answers',
         'answered_questions',
+        'total_questions',
     ]
 
     timeout_seconds = 3600 + 300  # upper bound; JS controls actual time
@@ -312,14 +314,18 @@ class Task(Page):
         if player.incorrect_answers is None:
             player.incorrect_answers = 0
 
+        total = int(player.total_questions or 0)
+
         correct = int(player.answered_questions) - int(player.incorrect_answers)
         if correct < 0:
             correct = 0
         player.correct_answers = correct
-        player.accuracy_rate = (correct / player.answered_questions) if player.answered_questions > 0 else 0.0
+        player.accuracy_rate = (correct / total) if total > 0 else 0.0
 
         player.completed_task_seconds = int(player.assigned_task_seconds or 0)
         player.makeup_seconds = 0
+
+
 
 
 class End(Page):

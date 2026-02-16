@@ -14,6 +14,7 @@
   <input type="hidden" name="blur_events" id="blur_events">
   <input type="hidden" name="incorrect_answers" id="incorrect_answers">
   <input type="hidden" name="answered_questions" id="answered_questions">
+  <input type="hidden" name="total_questions" id="total_questions">
 </div>
 
 <div class="card">
@@ -24,7 +25,7 @@
     {% else %}
       <p>This is your follow-up session. Please complete the remaining minutes using the same task.</p>
     {% endif %}
-    <p>We will record your accuracy on the pop-up checks (proportion correct among the questions you answered) and the number of times you switch away from this tab/window.</p>
+    <p>We will record your accuracy on the pop-up checks (proportion correct among the questions poped).</p>
   </div>
 </div>
 
@@ -35,6 +36,7 @@
 <input type="hidden" name="blur_events" id="blur_events" value="0" />
 <input type="hidden" name="incorrect_answers" id="incorrect_answers" value="0" />
 <input type="hidden" name="answered_questions" id="answered_questions" value="0" />
+<input type="hidden" name="total_questions" id="total_questions" value="0" />
 
 <div class="mt-3" id="taskArea" style="border:1px solid #ddd; padding:16px; border-radius:8px;">
   <div id="statusLine">Task running…</div>
@@ -91,6 +93,7 @@
   let blurs = 0;
   let incorrect = 0;
   let answered = 0;
+  let total = 0;
 
   const log = [];
   function logEvent(ev) {
@@ -133,6 +136,9 @@
     activePrompt = p;
     promptShownAt = Date.now();
     promptDeadline = Date.now() + deadlineMs;
+
+    total += 1;
+
     promptBox.style.display = 'block';
     promptText.textContent = p.text;
     promptHint.textContent = p.hint;
@@ -181,6 +187,7 @@
     document.getElementById('blur_events').value = String(blurs);
     document.getElementById('incorrect_answers').value = String(incorrect);
     document.getElementById('answered_questions').value = String(answered);
+    document.getElementById('total_questions').value = String(total);
 
     // submit
     setTimeout(()=>{ document.querySelector('form').submit(); }, 300);
