@@ -101,9 +101,9 @@ class C(BaseConstants):
     DEMO_SECONDS = 120
 
     # Micro-question design
-    QUESTION_DEADLINE_MS = 5000  # time to answer after pop-up appears
-    INTERVAL_MIN_MS = 10000      # minimum time between pop-ups
-    INTERVAL_MAX_MS = 30000      # maximum time between pop-ups
+    QUESTION_DEADLINE_MS = 3000  # time to answer after pop-up appears
+    INTERVAL_MIN_MS = 15000      # minimum time between pop-ups
+    INTERVAL_MAX_MS = 45000      # maximum time between pop-ups
 
     # No time penalties in this version (we record misses/blur for accuracy/attention measurement).
     MISS_PENALTY_SECONDS = 0
