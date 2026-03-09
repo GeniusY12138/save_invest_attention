@@ -101,7 +101,7 @@ class C(BaseConstants):
     DEMO_SECONDS = 120
 
     # Micro-question design
-    QUESTION_DEADLINE_MS = 5000  # time to answer after pop-up appears
+    QUESTION_DEADLINE_MS = 8000  # time to answer after pop-up appears
     INTERVAL_MIN_MS = 10000      # minimum time between pop-ups
     INTERVAL_MAX_MS = 30000      # maximum time between pop-ups
 
@@ -124,6 +124,7 @@ class Group(BaseGroup):
 class Player(BasePlayer):
     # phase: "today" or "later"
     phase = models.StringField(initial='today')
+    later_password = models.StringField(blank=True)
 
     # Earnings chosen in the first stage ("time chips"): x for today, y for one month later.
     # Each $1 reduces the required minutes in that session by 1 minute.
@@ -215,7 +216,6 @@ class Instructions(Page):
 class Demo(Page):
 
 
-    timeout_seconds = C.DEMO_SECONDS + 5  # small buffer; JS ends it
 
     @staticmethod
     def is_displayed(player: Player):
@@ -231,6 +231,23 @@ class Demo(Page):
             interval_max=C.INTERVAL_MAX_MS,
             deadline_ms=C.QUESTION_DEADLINE_MS,
         )
+    
+
+class LaterWall(Page):
+    form_model = 'player'
+    form_fields = ['later_password']
+
+    @staticmethod
+    def is_displayed(player: Player):
+        # Only show before the later attention section (round 2)
+        return player.round_number == 2
+
+    @staticmethod
+    def error_message(player: Player, values):
+        entered = (values.get('later_password') or '').strip()
+        expected = str(player.session.config.get('later_wall_password', '')).strip()
+        if entered != expected:
+            return "Incorrect password."
 
 
 
@@ -247,7 +264,6 @@ class Task(Page):
         'total_questions',
     ]
 
-    timeout_seconds = 3600 + 300  # upper bound; JS controls actual time
 
     @staticmethod
     def vars_for_template(player: Player):
@@ -358,4 +374,4 @@ class End(Page):
             later_minutes=later_m,
         )
 
-page_sequence = [Instructions, Demo, Task, End]
+page_sequence = [Instructions, Demo, LaterWall, Task, End]

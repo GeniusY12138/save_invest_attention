@@ -1,6 +1,5 @@
-
 {% extends "global/Page.html" %}
-{% block title %}30-second sample{% endblock %}
+{% block title %}{{ demo_seconds }}-second sample{% endblock %}
 
 {% block content %}
 <div class="card">
@@ -23,9 +22,15 @@
 <div class="mt-3">
   <em>The page will advance automatically when the sample ends.</em>
 </div>
+{% endblock %}
 
+{% block scripts %}
 <script>
 (function() {
+  // HARD GUARD: prevent duplicate start if this script gets evaluated twice.
+  if (window.__att_demo_started) return;
+  window.__att_demo_started = true;
+
   // Simple seeded RNG (LCG) for repeatability
   let seed = Number("{{ seed }}");
   function rand() {
@@ -51,6 +56,8 @@
   let endAt = Date.now() + demoSeconds * 1000;
   let activePrompt = null;
   let promptDeadline = null;
+
+  let nextTimeoutId = null;
 
   function makePrompt() {
     // 4 easy prompt families; parameters change each time
@@ -98,11 +105,18 @@
 
   function scheduleNext() {
     const delay = randInt(intervalMin, intervalMax);
-    setTimeout(() => {
+    nextTimeoutId = setTimeout(() => {
       if (Date.now() >= endAt) return;
       if (!activePrompt) showPrompt(makePrompt());
       scheduleNext();
     }, delay);
+  }
+
+  function finish() {
+    if (nextTimeoutId) clearTimeout(nextTimeoutId);
+    statusLine.textContent = 'Sample finished.';
+    clearPrompt();
+    setTimeout(() => { document.querySelector('form').submit(); }, 300);
   }
 
   function tick() {
@@ -113,10 +127,7 @@
       clearPrompt();
     }
     if (remainingMs <= 0) {
-      statusLine.textContent = 'Sample finished.';
-      clearPrompt();
-      // auto-advance after short pause
-      setTimeout(() => { document.querySelector('form').submit(); }, 300);
+      finish();
       return;
     }
     requestAnimationFrame(tick);

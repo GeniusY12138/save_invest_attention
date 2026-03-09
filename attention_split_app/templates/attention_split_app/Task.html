@@ -1,6 +1,5 @@
-
 {% extends "global/Page.html" %}
-{% block title %}Attention task{% endblock %}
+{% block title %}Attention Task{% endblock %}
 
 {% block content %}
 
@@ -29,15 +28,6 @@
   </div>
 </div>
 
-<input type="hidden" name="task_log_json" id="task_log_json" />
-<input type="hidden" name="completed_task_seconds" id="completed_task_seconds" value="0" />
-<input type="hidden" name="makeup_seconds" id="makeup_seconds" value="0" />
-<input type="hidden" name="missed_questions" id="missed_questions" value="0" />
-<input type="hidden" name="blur_events" id="blur_events" value="0" />
-<input type="hidden" name="incorrect_answers" id="incorrect_answers" value="0" />
-<input type="hidden" name="answered_questions" id="answered_questions" value="0" />
-<input type="hidden" name="total_questions" id="total_questions" value="0" />
-
 <div class="mt-3" id="taskArea" style="border:1px solid #ddd; padding:16px; border-radius:8px;">
   <div id="statusLine">Task running…</div>
   <div id="timerLine" style="margin-top:8px; font-size:18px;"></div>
@@ -54,8 +44,15 @@
   <p><em>Please do not refresh this page.</em></p>
 </div>
 
+{% endblock %}
+
+{% block scripts %}
 <script>
 (function() {
+  // HARD GUARD: prevent duplicate start if this script gets evaluated twice.
+  if (window.__att_task_started) return;
+  window.__att_task_started = true;
+
   // Seeded RNG (LCG): repeatable for audit, unpredictable to participant
   let seed = Number("{{ seed }}");
   function rand() {
@@ -88,7 +85,6 @@
   let promptDeadline = null;
   let promptShownAt = null;
 
-  let makeupSeconds = 0;
   let missed = 0;
   let blurs = 0;
   let incorrect = 0;
@@ -164,9 +160,10 @@
     promptInput.blur();
   }
 
+  let nextTimeoutId = null;
   function scheduleNext() {
     const delay = randInt(intervalMin, intervalMax);
-    setTimeout(() => {
+    nextTimeoutId = setTimeout(() => {
       if (!running) return;
       if (!activePrompt && document.visibilityState === 'visible') {
         showPrompt(makePrompt());
@@ -177,11 +174,12 @@
 
   function finish() {
     running = false;
+    if (nextTimeoutId) clearTimeout(nextTimeoutId);
+
     statusLine.textContent = 'Task finished. Submitting…';
-    // Populate hidden fields
     document.getElementById('task_log_json').value = JSON.stringify(log);
-    
-    document.getElementById('assigned_task_seconds').value = String(Math.round(assignedSeconds));document.getElementById('completed_task_seconds').value = String(Math.round(assignedSeconds));
+    document.getElementById('assigned_task_seconds').value = String(Math.round(assignedSeconds));
+    document.getElementById('completed_task_seconds').value = String(Math.round(assignedSeconds));
     document.getElementById('makeup_seconds').value = "0";
     document.getElementById('missed_questions').value = String(missed);
     document.getElementById('blur_events').value = String(blurs);
@@ -189,7 +187,6 @@
     document.getElementById('answered_questions').value = String(answered);
     document.getElementById('total_questions').value = String(total);
 
-    // submit
     setTimeout(()=>{ document.querySelector('form').submit(); }, 300);
   }
 
@@ -200,12 +197,10 @@
     lastTick = now;
 
     if (running) {
-      // only count down when visible (attention time)
       if (document.visibilityState === 'visible') {
         remainingMs = Math.max(0, remainingMs - dt);
       }
 
-      // handle prompt deadline
       if (activePrompt && now > promptDeadline) {
         missed += 1;
         logEvent({event:'prompt_missed'});
@@ -222,7 +217,6 @@
     requestAnimationFrame(tick);
   }
 
-  // Focus/visibility measurement (no penalties)
   window.addEventListener('blur', () => {
     if (!running) return;
     blurs += 1;
@@ -233,10 +227,8 @@
   document.addEventListener('visibilitychange', () => {
     if (!running) return;
     logEvent({event:'visibility', state: document.visibilityState});
-    // We do not add a penalty here to avoid double-counting with blur on some browsers.
   });
 
-  // Response handling
   document.addEventListener('keydown', (e) => {
     if (!running || !activePrompt) return;
 
@@ -282,7 +274,6 @@
     }
   });
 
-  // Start
   scheduleNext();
   tick();
 })();
