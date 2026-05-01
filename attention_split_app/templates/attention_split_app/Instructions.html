@@ -7,20 +7,18 @@ The task is intentionally repetitive. You will see a mostly static screen. At un
 </p>
 
 <p>
-We will record your performance. Your outcome is based on your <b>accuracy rate</b>: the proportion of prompts you answer correctly.
-After finishing both attention tasks sessions, you will receive a payment that is 50 dollars times your overall accuracy rate. For example, if your overall accuracy rate is 0.8, you will receive 0.8 × 50 = 40 dollars.
-
+We will record your performance during the attention tasks. You need 80% accuracy or above to be considered successfully completed the work section. You will receive a $5 show-up fee today. If you also successfully complete the work section today and in four weeks, you will receive an additional $45.
 </p>
 
 Based on your Stage 2 results, your “EMU” are:
-<b>x = {{ today_dollars }}</b> EMU for today and <b>y = {{ later_dollars }}</b> EMU for one month later.
-This means you will be required to complete <b>{{ today_minutes }}</b> minutes today (40 − x) and
-<b>{{ later_minutes }}</b> minutes in the later part (40 − y).
+<b>x = {{ timechip_today_dollars }}</b> EMUs for today and <b>y = {{ timechip_later_dollars }}</b> EMUs in four weeks. Each EMU can be used to reduce your working time by 2 minutes. During the time you buy with EMUs, you may relax, use your phone, etc.
+This means you will be required to complete <b>{{ today_minutes }}</b> minutes today (45 - 2x) and
+<b>{{ later_minutes }}</b> minutes in four weeks (45 - 2y).
 </p>
 
 <p>
 Next, you will see a {{ demo_seconds }}-second sample of the task so you know what it looks like.
-After the sample, you will start the <b>today</b> task. Immediately after that, you will complete the <b>later</b> task (representing one month later).
+After the sample, you will start the <b>today</b> work section. 
 </p>
 
 {{ next_button }}

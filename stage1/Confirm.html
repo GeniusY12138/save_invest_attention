@@ -32,7 +32,7 @@
           <div class="col-6 text-center border border-dark bg-white">
               <p>
                   <br> <br>
-                  How much money do you want to keep today? {{ player.savings}}
+                  How many EMUs do you want to keep today? {{ player.savings}} EMUs
               </p>
               <br>
           </div>
@@ -40,7 +40,7 @@
             <p>
                 <br>
                 <br>
-                You have the following amount to invest: {{max_investA_display}}
+                You have the following amount to invest: {{max_investA_display}} EMUs
             </p>
               <br>
           </div>
@@ -49,7 +49,7 @@
           <div class = "col-6 text-center border border-dark bg-white">
               <p>
                   <br> <br>
-                  How much would you like to invest in Asset A? {{player.investA}}
+                  How much would you like to invest in Asset A? {{player.investA}} EMUs
 
               </p>
               <br>
@@ -58,7 +58,7 @@
               <p>
                   <br>
                   <br>
-                  You invest the following amount in Asset B: {{investB_display}}
+                  You invest the following amount in Asset B: {{investB_display}} EMUs
               </p>
               <br>
           </div>
@@ -82,9 +82,9 @@
                   chart: { type: 'column'},
                   title: { text: ''},
                     xAxis: {
-                        categories: ['Money Today', 'Money in 1 months time if Asset A pays out', 'Money in 1 months time if Asset B pays out']
+                        categories: ['EMUs Today', 'EMUs in four weeks if Asset A pays out', 'EMUs in four weeks if Asset B pays out']
                     },
-                    series: [{name: 'Payoffs', data: js_vars.chart_series}]
+                    series: [{name: 'Payment', data: js_vars.chart_series}]
                   });
                 </script>
               </div>
@@ -92,12 +92,12 @@
           <div class = "col">
               <br><br><br><br><br>
               <p style ="text-align: center;">
-                  Payment (excluding show-up fee):
+                  Payment:
               </p>
               <p style = "text-align: right;">
-                  Money today: {{ money_today_display }}<br><br>
-                  Money in 1 month's time if Asset A pays out: {{ money_onemonthA_display }}<br><br>
-                  Money in 1 month's time if Asset B pays out: {{ money_onemonthB_display }}<br><br>
+                  EMUs today: {{ money_today_display }}<br><br>
+                  EMUs in four weeks if Asset A pays out: {{ money_onemonthA_display }}<br><br>
+                  EMUs in four weeks if Asset B pays out: {{ money_onemonthB_display }}<br><br>
 
 
                   <button name="make_changes" value="True" class = "btn btn-primary">Make Changes</button>

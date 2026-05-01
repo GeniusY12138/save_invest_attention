@@ -33,11 +33,11 @@ class Player(BasePlayer):
         doc="Participant's stated CE for the lottery"
     )
     
-    random_price = models.CurrencyField()
+    random_price = models.FloatField()
     pay_stage = models.IntegerField()
     pay_round = models.IntegerField()
-    final_today = models.CurrencyField()
-    final_1m = models.CurrencyField()
+    final_today = models.FloatField()
+    final_1m = models.FloatField()
     
     # Reaction times
     start_time = models.FloatField()
@@ -167,13 +167,13 @@ class BdmPage(Page):
                 participant.payoff_one_month_s2 = 0
 
             if fpr < len(participant.probA) + 1:
-                final_today = participant.payoff_today_s1 + 5
-                final_1m =  participant.payoff_one_month_s1 + 5
+                final_today = round(participant.payoff_today_s1,2)
+                final_1m =  round(participant.payoff_one_month_s1,2)
                 pay_stage = 1
                 pay_round = participant.paying_round
             else:
-                final_today = participant.payoff_today_s2 + 5
-                final_1m =  participant.payoff_one_month_s2 + 5
+                final_today = round(participant.payoff_today_s2,2)
+                final_1m =  round(participant.payoff_one_month_s2,2)
                 pay_stage = 2
                 pay_round = participant.paying_round_stage_2
 
@@ -185,9 +185,13 @@ class BdmPage(Page):
             # Each $1 reduces required minutes in the corresponding session by 1 minute.
             # We store both in participant.vars so the later attention app can read them without extra forms.
             try:
+                participant.vars['final_today'] = float(final_today)
+                participant.vars['final_1m'] = float(final_1m)
                 participant.vars['timechip_today_dollars'] = float(final_today)
                 participant.vars['timechip_later_dollars'] = float(final_1m)
             except Exception:
+                participant.vars['final_today'] = final_today
+                participant.vars['final_1m'] = final_1m
                 participant.vars['timechip_today_dollars'] = final_today
                 participant.vars['timechip_later_dollars'] = final_1m
 
@@ -247,14 +251,14 @@ class Results(Page):
         total_1m =  participant.payoff_one_month_s1 + participant.payoff_one_month_s2 + 5
 
         # final payoff (one out of 42+32), including fixed payment
-        if fpr < len(participant.probA) + 1: # sectu
-            final_today = participant.payoff_today_s1 + 5
-            final_1m =  participant.payoff_one_month_s1 + 5
+        if fpr < len(participant.probA) + 1: # section
+            final_today = round(participant.payoff_today_s1,2)
+            final_1m =  round(participant.payoff_one_month_s1,2)
             pay_stage = 1
             pay_round = participant.paying_round
         else:
-            final_today = participant.payoff_today_s2 + 5
-            final_1m =  participant.payoff_one_month_s2 + 5
+            final_today = round(participant.payoff_today_s2,2)
+            final_1m =  round(participant.payoff_one_month_s2,2)
             pay_stage = 2
             pay_round = participant.paying_round_stage_2
         

@@ -19,12 +19,12 @@
   <tbody>
     <tr>
       <td class="nowrap-cell" style="border:1px solid #000; padding:4px; text-align:center;">
-        Today: {{ payment_today }}, One Month: Lottery {{ probA }}% of {{ monthA }}<br>
-        {{ probB }}% of {{ monthB }}
+        Today: {{ payment_today }} EMUs, One Month: Lottery {{ probA }}% of {{ monthA }} EMUs <br>
+        {{ probB }}% of {{ monthB }} EMUs
       </td>
       <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
       <td class="nowrap-cell" style="border:1px solid #000; padding:4px; text-align:center;">
-        Today: {{ payment_today }}, One Month: 100% of your certain amount
+        Today: {{ payment_today }} EMUs, One Month: 100% of your certain amount
       </td>
     </tr>
   </tbody>
@@ -32,13 +32,13 @@
 
   <!-- 说明文本 -->
   <p id="text">
-    Please enter the certain amount (the dollar value you would switch) that would make you indifferent between Option I and the lottery in Option II. 
+    Please enter the certain amount (the EMU value you would switch) that would make you indifferent between Option I and the lottery in Option II. 
   </p>
   <form method="post" action=".">
     
     <div class="form-group">
       <label for="certainty_equivalent">
-        Enter your amount (between {{ low }} and {{ high }}):
+        Enter your amount (between {{ low }} EMUs and {{ high }} EMUs):
       </label>
       <input
         type="number"

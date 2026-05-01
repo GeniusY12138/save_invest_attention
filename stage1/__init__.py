@@ -91,16 +91,16 @@ class Player(BasePlayer):
     # Round Parameters
     counter = models.IntegerField()
     round_order = models.IntegerField()
-    round_endowment = models.CurrencyField()
+    round_endowment = models.FloatField()
     round_probA = models.FloatField()
     round_probB = models.FloatField()
     round_returnA = models.FloatField()
     round_returnB = models.FloatField()
 
     # Round Choices
-    savings = models.CurrencyField(min=0, max=10)
-    investA = models.CurrencyField()
-    investB = models.CurrencyField()
+    savings = models.FloatField(min=0, max=10)
+    investA = models.FloatField()
+    investB = models.FloatField()
 
     # set min value for input in investA
     def investA_min(player):
@@ -114,8 +114,8 @@ class Player(BasePlayer):
 
     # Payoffs
     paying_asset = models.StringField()
-    payoff_today = models.CurrencyField()
-    payoff_oneMonth = models.CurrencyField()
+    payoff_today = models.FloatField()
+    payoff_oneMonth = models.FloatField()
     make_changes = models.BooleanField()
 
     # Final counter round indicator
@@ -129,17 +129,17 @@ class Player(BasePlayer):
 
 
 def comp_instant_error_message(player, value):
-    if value != 10:
+    if value != 5:
         return 'Incorrect. Try Again.'
 
 
 def comp_oneMonthA_error_message(player, value):
-    if value != 11:
+    if value != 6:
         return 'Incorrect. Try Again.'
 
 
 def comp_oneMonthB_error_message(player, value):
-    if value != 5:
+    if value != 0:
         return 'Incorrect. Try Again.'
 
 
@@ -359,7 +359,7 @@ class Confirm(Page):
         max_investA = C.ENDOWMENT[order] - player.savings
         investB = C.ENDOWMENT[order] - player.savings - player.investA
         money_today = player.savings
-        money_onemonthA = C.RETURNA[order] * player.investA
+        money_onemonthA = round(C.RETURNA[order] * player.investA, 2)
         money_onemonthB = max(0, C.RETURNB[order] * (
             C.ENDOWMENT[order] - player.savings - player.investA))
 

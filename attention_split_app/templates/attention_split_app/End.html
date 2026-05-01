@@ -3,13 +3,13 @@
 
 {% block content %}
 {% if phase == "today" %}
-<p>You have finished the <b>today</b> part.</p>
-<p>Next, you will complete the <b>later</b> part (representing one month later) for <b>{{ later_minutes }}</b> minutes.</p>
+<p>You have finished the <b>today</b> work section.</p>
+<p>Next, you will complete the <b>later</b> work section (representing four weeks later) for <b>{{ later_minutes }}</b> minutes.</p>
 {% else %}
-<p>You have finished the <b>later</b> part. Thank you!</p>
+<p>You have finished the <b>later</b> work section. Thank you!</p>
 {% endif %}
 
-<p>Accuracy this part: <b>{{ accuracy_rate_str }}</b></p>
+<p>Accuracy this work section: <b>{{ accuracy_rate_str }}</b></p>
 
 {{ next_button }}
 {% endblock %}

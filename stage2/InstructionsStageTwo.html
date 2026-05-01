@@ -4,7 +4,8 @@
 
 {% block content %}
   <p>
-      In this part, you will be presented with up to 32 different choice screens. On each of these screens, you will be presented with a list of choices for you to make. The first option will be the same in each question: it will be an amount of money that you will receive today, plus the chance of receiving some money in one month's time. The second option will change in each question.
+  In this part, you will be presented with up to 32 different choice screens. On each of these screens, you will be presented with a list of choices for you to make. The first option will be the same in each question: it will be an amount of EMUs that you will receive today, plus the chance of receiving some EMUs in one month's time. The second option will change in each question.
+
   </p>
 
   <p>
@@ -12,7 +13,7 @@
   </p>
 
   <p>
-      Lottery A is 40% chance of $20.00, and 60% chance of 0. Every option on the left hand side is the same: Today: $1.00, One Month: Lottery A. <b>The option on the right gets better as you move down the screen</b>.</p>
+      Lottery A is 40% chance of 20.00 EMUs, and 60% chance of 0 EMUs. Every option on the left hand side is the same: Today: 1.00 EMU, One Month: Lottery A. <b>The option on the right gets better as you move down the screen</b>.</p>
 
   <table style="width:95%; border-collapse: collapse; margin:1em 0;">
     <thead>
@@ -28,16 +29,16 @@
       <tr>
         <td style="border:1px solid #000; padding:4px; text-align:center;">1</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: Lottery A</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $0.01</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: 0.01 EMU</td>
       </tr>
       <tr>
         <td style="border:1px solid #000; padding:4px; text-align:center;">2</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: Lottery A</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $0.02</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: 0.02 EMU</td>
       </tr>
       <tr>
         <td colspan="5" style="border:none; text-align:center;">…</td>
@@ -45,16 +46,16 @@
       <tr>
         <td style="border:1px solid #000; padding:4px; text-align:center;">1,999</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: Lottery A</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $19.99</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: 19.99 EMU</td>
       </tr>
       <tr>
         <td style="border:1px solid #000; padding:4px; text-align:center;">2,000</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">Would you rather have:</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: Lottery A</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: Lottery A</td>
         <td style="border:1px solid #000; padding:4px; text-align:center;">or</td>
-        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: $1.00, One Month: $20.00</td>
+        <td style="border:1px solid #000; padding:4px; text-align:center;">Today: 1.00 EMU, One Month: 20.00 EMU</td>
       </tr>
     </tbody>
   </table>
@@ -66,11 +67,9 @@
     Obviously, <b>you have no incentive to lie</b>, because if that question gets chosen, then you'd end up with the option you like less.
   </p>
   <p>
-    I assume you’ll choose Option I in at least the first few questions, then switch to Option II.  
-    To save time, I will ask you at what dollar value you would switch, i.e., the first line you would choose Option II.
-    I will then fill out your answers for all 2,000 questions based on that switch point.
+    I assume you'll choose Option I in at least the first few questions, then switch to Option II. To save time, I will ask you at what EMU value you would switch, i.e., the first line you would choose Option II. I will then fill out your answers for all 2,000 questions based on that switch point.
   </p>
-  <p>On each choice screen, I will directly ask you at which dollar value you would switch.</p>
+  <p>On each choice screen, I will directly ask you at which EMU value you would switch.</p>
       
     {% next_button %}
 

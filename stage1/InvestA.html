@@ -25,12 +25,12 @@
       <div class = "row">
           <div class="col-6 text-center border border-dark bg-white">
               <br><br>
-              How much money do you want to keep today? {{ player.savings }}
+              How many EMUs do you want to keep today? {{ player.savings }} EMUs
               <br><br><br>
           </div>
           <div class="col-6 text-center border border-dark bg-white">
               <br><br>
-              You have the following amount to invest: {{max_investA_display}}
+              You have the following amount to invest: {{max_investA_display}} EMUs 
               <br><br><br>
           </div>
       </div>
@@ -38,7 +38,7 @@
           <div class = "col-7 text-center border border-dark bg-white">
               <div class = "row">
                   <div class = "col-8 text-center bg-white">
-                      <br>How much would you like to invest in Asset A?<br>
+                      <br>How many EMUs would you like to invest in Asset A?<br>
                   </div>
                   <div class = "col bg-white">
                       <br>{{ form.investA }}{{ formfield_errors 'investA'}}<br>

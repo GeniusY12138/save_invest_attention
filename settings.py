@@ -8,7 +8,7 @@ SESSION_CONFIGS = [
         num_demo_participants=1,
         use_external_timechips=True,
         show_consent_in_later=False,
-        later_wall_password='319',
+        later_wall_password='admin',
     ),
 ]
 

@@ -7,16 +7,16 @@ import random
 
 doc = """
 Save–Invest as effort timing: participants face TWO separate sessions of a sustained-attention task:
-- Today: baseline 40 minutes
-- One month later: baseline 40 minutes
+- Today: baseline 45 minutes
+- One month later: baseline 45 minutes
 
 In the first stage (today session), participants choose earnings (x dollars for today, y dollars for later).
 They do not receive cash immediately; instead, each dollar acts like a 1-minute "time chip" that reduces
 the required task time in that session.
 
 So required time is:
-- Today task minutes = 40 − x
-- Later task minutes = 40 − y
+- Today task minutes = 45 - final_today
+- Later task minutes = 45 - final_1m
 
 The app saves the chosen (x, y) and the implied task minutes to a JSON file keyed by participant label (or code),
 so the later session automatically loads the remaining requirement.
@@ -39,6 +39,8 @@ def participant_key(participant) -> str:
 
 def _get_timechip_dollars_from_participant(participant):
     """Fetch (x,y) dollars from earlier stages if available."""
+    x = participant.vars.get('final_today', None)
+    y = participant.vars.get('final_1m', None)
     x = participant.vars.get('timechip_today_dollars', None)
     y = participant.vars.get('timechip_later_dollars', None)
     if x is None or y is None:
@@ -49,8 +51,8 @@ def _get_timechip_dollars_from_participant(participant):
     except Exception:
         return None
     # Clamp to [0, 40] and round to nearest integer minute-dollar.
-    x_i = int(round(max(0, min(C.TOTAL_MINUTES, x))))
-    y_i = int(round(max(0, min(C.TOTAL_MINUTES, y))))
+    x_i = round(max(0, min(C.TOTAL_MINUTES, x)))
+    y_i = round(max(0, min(C.TOTAL_MINUTES, y)))
     return x_i, y_i
 
 
@@ -64,12 +66,12 @@ def save_allocation(participant, today_dollars: int, later_dollars: int) -> None
     key = participant_key(participant)
     payload = {
         'key': key,
-        'saved_at_unix': int(time.time()),
+        'saved_at_unix': time.time(),
         'baseline_minutes_per_session': int(C.TOTAL_MINUTES),
-        'today_dollars': int(today_dollars),
-        'later_dollars': int(later_dollars),
-        'today_minutes': int(C.TOTAL_MINUTES - today_dollars),
-        'later_minutes': int(C.TOTAL_MINUTES - later_dollars),
+        'today_dollars': today_dollars,
+        'later_dollars': later_dollars,
+        'today_minutes': C.TOTAL_MINUTES - 2* today_dollars,
+        'later_minutes': C.TOTAL_MINUTES - 2* later_dollars,
     }
     with open(alloc_path(key), 'w', encoding='utf-8') as f:
         json.dump(payload, f)
@@ -95,7 +97,7 @@ class C(BaseConstants):
     NUM_ROUNDS = 2
 
     # Baseline minutes per session (today AND one-month-later)
-    TOTAL_MINUTES = 15
+    TOTAL_MINUTES = 45
 
     # Demo preview length
     DEMO_SECONDS = 120
@@ -128,26 +130,28 @@ class Player(BasePlayer):
 
     # Earnings chosen in the first stage ("time chips"): x for today, y for one month later.
     # Each $1 reduces the required minutes in that session by 1 minute.
-    today_dollars = models.IntegerField(min=0, max=C.TOTAL_MINUTES, blank=True)
-    later_dollars = models.IntegerField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    timechip_today_dollars = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    timechip_later_dollars = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    today_dollars = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    later_dollars = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
 
     # Convenience fields for exports/clarity (derived from dollars)
-    today_minutes = models.IntegerField(min=0, max=C.TOTAL_MINUTES, blank=True)
-    later_minutes = models.IntegerField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    today_minutes = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
+    later_minutes = models.FloatField(min=0, max=C.TOTAL_MINUTES, blank=True)
 
     # Task outcomes (for whichever session this run corresponds to)
-    assigned_task_seconds = models.IntegerField(initial=0)
-    completed_task_seconds = models.IntegerField(initial=0)
-    makeup_seconds = models.IntegerField(initial=0)
+    assigned_task_seconds = models.FloatField(initial=0)
+    completed_task_seconds = models.FloatField(initial=0)
+    makeup_seconds = models.FloatField(initial=0)
 
-    missed_questions = models.IntegerField(initial=0)
-    blur_events = models.IntegerField(initial=0)
-    incorrect_answers = models.IntegerField(initial=0)
-    answered_questions = models.IntegerField(initial=0)
-    total_questions = models.IntegerField(initial=0)
+    missed_questions = models.FloatField(initial=0)
+    blur_events = models.FloatField(initial=0)
+    incorrect_answers = models.FloatField(initial=0)
+    answered_questions = models.FloatField(initial=0)
+    total_questions = models.FloatField(initial=0)
 
     # Accuracy metrics (computed server-side after the task page submits)
-    correct_answers = models.IntegerField(initial=0)
+    correct_answers = models.FloatField(initial=0)
     accuracy_rate = models.FloatField(initial=0)
 
     # Raw logs for audit/attention diagnostics (JSON string)
@@ -186,11 +190,13 @@ class Instructions(Page):
             x, y = 0, 0
         else:
             x, y = xy
-        today_minutes = int(C.TOTAL_MINUTES - x)
-        later_minutes = int(C.TOTAL_MINUTES - y)
+        today_minutes = C.TOTAL_MINUTES - 2* x
+        later_minutes = C.TOTAL_MINUTES - 2* y
         return dict(
             total_minutes=C.TOTAL_MINUTES,
             demo_seconds=C.DEMO_SECONDS,
+            timechip_today_dollars=x,
+            timechip_later_dollars=y,
             today_dollars=x,
             later_dollars=y,
             today_minutes=today_minutes,
@@ -206,10 +212,12 @@ class Instructions(Page):
             x, y = 0, 0
         else:
             x, y = xy
-        player.today_dollars = int(x)
-        player.later_dollars = int(y)
-        player.today_minutes = int(C.TOTAL_MINUTES - player.today_dollars)
-        player.later_minutes = int(C.TOTAL_MINUTES - player.later_dollars)
+        player.timechip_today_dollars = x
+        player.timechip_later_dollars = y
+        player.today_dollars = x
+        player.later_dollars = y
+        player.today_minutes = C.TOTAL_MINUTES - 2* player.today_dollars
+        player.later_minutes = C.TOTAL_MINUTES - 2* player.later_dollars
         save_allocation(player.participant, player.today_dollars, player.later_dollars)
 
 
@@ -276,31 +284,37 @@ class Task(Page):
                     x, y = 0, 0
                 else:
                     x, y = xy
+                player.timechip_today_dollars = x
+                player.timechip_later_dollars = y
                 player.today_dollars = x
                 player.later_dollars = y
-                player.today_minutes = int(C.TOTAL_MINUTES - x)
-                player.later_minutes = int(C.TOTAL_MINUTES - y)
+                player.today_minutes = C.TOTAL_MINUTES - 2*x
+                player.later_minutes = C.TOTAL_MINUTES - 2*y
                 save_allocation(player.participant, x, y)
             else:
-                x = int(player.today_dollars or 0)
-                y = int(player.later_dollars or 0)
-                player.today_minutes = int(C.TOTAL_MINUTES - x)
-                player.later_minutes = int(C.TOTAL_MINUTES - y)
-            minutes = int(player.today_minutes)
+                x = float(player.today_dollars or 0)
+                y = float(player.later_dollars or 0)
+                player.today_minutes = C.TOTAL_MINUTES - 2*x
+                player.later_minutes = C.TOTAL_MINUTES - 2*y
+            minutes = float(player.today_minutes)
         else:
             player.phase = 'later'
             alloc = load_allocation(player.participant)
             if alloc:
-                player.today_dollars = int(alloc.get('today_dollars', 0))
-                player.later_dollars = int(alloc.get('later_dollars', 0))
-                player.today_minutes = int(alloc.get('today_minutes', C.TOTAL_MINUTES))
-                player.later_minutes = int(alloc.get('later_minutes', C.TOTAL_MINUTES))
+                player.today_dollars = float(alloc.get('today_dollars', 0))
+                player.later_dollars = float(alloc.get('later_dollars', 0))
+                player.today_minutes = float(alloc.get('today_minutes', C.TOTAL_MINUTES))
+                player.later_minutes = float(alloc.get('later_minutes', C.TOTAL_MINUTES))
+                player.timechip_today_dollars = float(alloc.get('timechip_today_dollars', 0))
+                player.timechip_later_dollars = float(alloc.get('timechip_later_dollars', 0))
             else:
                 player.today_dollars = 0
                 player.later_dollars = 0
                 player.today_minutes = C.TOTAL_MINUTES
                 player.later_minutes = C.TOTAL_MINUTES
-            minutes = int(player.later_minutes)
+                player.timechip_today_dollars = 0
+                player.timechip_later_dollars = 0
+            minutes = float(player.later_minutes)
 
         assigned_seconds = int(minutes * 60)
         player.participant.vars['assigned_task_seconds'] = int(assigned_seconds)
@@ -311,6 +325,8 @@ class Task(Page):
         return dict(
             phase=player.phase,
             baseline_minutes=C.TOTAL_MINUTES,
+            timechip_today_dollars=player.timechip_today_dollars,
+            timechip_later_dollars=player.timechip_later_dollars,
             today_dollars=player.today_dollars,
             later_dollars=player.later_dollars,
             today_minutes=player.today_minutes,
@@ -354,20 +370,22 @@ class End(Page):
     @staticmethod
     def vars_for_template(player: Player):
         if player.phase == 'today':
-            x = int(player.today_dollars or 0)
-            y = int(player.later_dollars or 0)
-            today_m = int(player.today_minutes or (C.TOTAL_MINUTES - x))
-            later_m = int(player.later_minutes or (C.TOTAL_MINUTES - y))
+            x = player.today_dollars or 0
+            y = player.later_dollars or 0
+            today_m = player.today_minutes or (C.TOTAL_MINUTES - 2*x)
+            later_m = player.later_minutes or (C.TOTAL_MINUTES - 2*y)
         else:
-            x = int(player.today_dollars or 0)
-            y = int(player.later_dollars or 0)
-            today_m = int(player.today_minutes or C.TOTAL_MINUTES)
-            later_m = int(player.later_minutes or C.TOTAL_MINUTES)
+            x = player.today_dollars or 0
+            y = player.later_dollars or 0
+            today_m = player.today_minutes or C.TOTAL_MINUTES
+            later_m = player.later_minutes or C.TOTAL_MINUTES
 
         return dict(
             accuracy_rate_str=f"{(player.accuracy_rate or 0.0):.3f}",
             phase=player.phase,
             baseline_minutes=C.TOTAL_MINUTES,
+            timechip_today_dollars=x,
+            timechip_later_dollars=y,
             today_dollars=x,
             later_dollars=y,
             today_minutes=today_m,
