@@ -70,6 +70,11 @@ class C(BaseConstants):
                1.8, 2, 2, 2.2, 2.2, 
                2.4, 2.4]
 
+    DEMO_SECONDS = 120           # length of the demo preview
+    QUESTION_DEADLINE_MS = 8000  # time to answer after a pop-up appears
+    INTERVAL_MIN_MS = 10000      # minimum time between pop-ups
+    INTERVAL_MAX_MS = 30000      # maximum time between pop-ups
+
 
 class Subsession(BaseSubsession):
     pass
@@ -194,6 +199,31 @@ class ComprehensionStageOne2(Page):
 
     form_model = 'player'
     form_fields = ['comp_prob1', 'comp_prob2']
+
+class Demo(Page):
+    """
+    Preview of the sustained-attention task that participants will face in
+    attention_split_app. Shown once, immediately after the comprehension
+    questions, so participants know what the later task feels like before
+    they make any save/invest decisions.
+
+    Moved here from attention_split_app. No form fields, no data recorded --
+    this is purely a demonstration.
+    """
+
+    def is_displayed(player):
+        return player.round_number == 1
+
+    @staticmethod
+    def vars_for_template(player: Player):
+        seed = (player.participant.id_in_session * 104729 + 12345) % 2147483647
+        return dict(
+            demo_seconds=C.DEMO_SECONDS,
+            seed=seed,
+            interval_min=C.INTERVAL_MIN_MS,
+            interval_max=C.INTERVAL_MAX_MS,
+            deadline_ms=C.QUESTION_DEADLINE_MS,
+        )
 
 
 class ComprehensionComplete(Page):
@@ -505,6 +535,7 @@ page_sequence = [
     InstructionsStageOne,
     ComprehensionStageOne1,
     ComprehensionStageOne2,
+    Demo,
     ComprehensionComplete,
     SaveToday,
     InvestA,

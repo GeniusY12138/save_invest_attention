@@ -392,4 +392,4 @@ class End(Page):
             later_minutes=later_m,
         )
 
-page_sequence = [Instructions, Demo, LaterWall, Task, End]
+page_sequence = [Instructions, LaterWall, Task, End]
